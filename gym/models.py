@@ -13,7 +13,7 @@ class Student(models.Model):
 class Employee(models.Model):
     EmpId =  models.CharField(max_length=8)
     name = models.CharField(max_length=32)
-
+    
     objects = models.Manager()
     class Meta:
         ordering = ('-EmpId',)
