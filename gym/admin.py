@@ -1,15 +1,12 @@
 from django.contrib import admin
-from .models import Student
-from .models import Employee
+from .models import GymUser, GymroomRecord
 
-@admin.register(Student)
-class StudentAdmin(admin.ModelAdmin):
-    list_display = ('StuId', 'name')
-    search_fields = ('StuId', 'name')
-    ordering = ('StuId', 'name')
+@admin.register(GymUser)
+class GymUserAdmin(admin.ModelAdmin):
+	list_display = ('id', 'name','userType')
+	search_fields = ('id', 'name','userType')
+	ordering = ('-id', 'name')
 
-@admin.register(Employee)
-class StudentAdmin(admin.ModelAdmin):
-    list_display = ('EmpId', 'name')
-    search_fields = ('EmpId', 'name')
-    ordering = ('EmpId', 'name')
+@admin.register(GymroomRecord)
+class GymroomRecordAdmin(admin.ModelAdmin):
+	list_display = ('time','leaveTime')

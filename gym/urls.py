@@ -5,7 +5,7 @@ app_name = 'gym'
 
 urlpatterns = [
     # post views
-    path('', views.export, name='export'),
-    
+    path('export', views.exportGymUser, name='export_GymUser'),
+    path('', views.index, name='index'),
 
 ]
