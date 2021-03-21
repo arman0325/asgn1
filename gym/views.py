@@ -1,8 +1,12 @@
 import csv
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from .models import GymUser, GymNow, GymWaiting
+from .forms import GymNowForm
+
+
+from django.contrib import messages
 # Create your views here.
 def exportGymUser(request):
 	response = HttpResponse(content_type='text/csv')
@@ -31,38 +35,44 @@ def importRemove(request):
 def viewCurrentUsers(request):
 	users = GymNow.objects.all().order_by('entryTime')
 	waitUsers = GymWaiting.objects.all().order_by('waitTime')
+	
+	new_user = None
+	if request.method =='POST':
+		gym_form = GymNowForm(data=request.POST)
+		if gym_form.is_valid():
+			new_user = gym_form.save(commit=False)
+			new_user.save()
+	else:
+		gym_form = GymNowForm()
+
+
+
 	return render(request, 'gym/ViewCurrentUsers.html',
 							{'users':users, 
-							'waitUsers':waitUsers})
+							'waitUsers':waitUsers,
+							'gym_form' : gym_form
+							})
+	
 
 def addGym(request):  
+
+    number = GymNow.objects.all().count()
     request.encoding='utf-8'
-    if 'userId' in request.GET and request.GET['userId']:
+    if 'userId' in request.GET and request.GET['userId'] and number<8:
         message = '你搜索的内容为: ' + request.GET['userId']
-        
-        addGymForm = form.save(commit=False)
-        userid = request.GET['userId']
-        s = GymUser.objects.get(id=userid)
-        print(s)
-        addGymForm.userId = s
-        addGymForm.save()
-        print("Success")
+        id = request.GET['userId']
+        user = GymUser.objects.get(pk=id)
+        new_user = GymNow.objects.create(userId=user)
+        #new_user.save()
+        print(user)
+        GymWaiting.objects.filter(userId=id).delete()
+        messages.success(request,"Action successful")
 
 
     else:
-        message = '你提交了空表单'
-    return HttpResponse(message)
-    # if request.method == 'POST':
-    # 	form = addGymForm(request.POST)
-    # 	if form.is_valid():
-    # 		userId = request.POST.get('userId','')
-    # 		entryTime = request.POST.get('entryTime', timezone.now)
-    # 		add_obj = GymNow(userId = userId, entryTime = entryTime)
-    # 		add_obj.save()
-    # 		return HttpResponse("Success")
-    # else:
-    # 	form = addGymForm()
-    # return HttpResponse("Unsuccess")
+        messages.success(request,"Gym room is full. Action unsuccessful")
+    return redirect('/gym/gymroom')
+	
 
 def SetMaxUsers(request):
 	return HttpResponse("SetMaxUsers")

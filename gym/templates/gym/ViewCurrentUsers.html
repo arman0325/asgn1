@@ -6,7 +6,16 @@
 <h1>Gym room</h1>
 {% if users|length >= 8 %}
 	<h2>Full</h2>
+	<form>
+		<button type="submit">add to waiting</button>
+	</form>
+{% else %}
+	<form>
+		<button type="submit">add to gym</button>
+	</form>
+
 {% endif %}
+
 <table class="table table-hover table-sm">
 	<thead>
 		<tr>
@@ -59,16 +68,23 @@
 			<td>{{waituser.userId.name}}</td>
 			<td>{{waituser.waitTime}}</td>
 			<td>
-				<form action="/gym/addGym" method="get">
+				<form action="/gym/addGym" method='get'>
 					<input type="hidden" name="userId" value="{{waituser.userId.id}}">
-					<input type="hidden" name="waitTime" value="{{waituser.waitTime}}">
-					<button type="submit" class="btn btn-primary">Gym</button>
+					<button type="submit" class="btn btn-primary">add to Gym</button>
+					<p>{{ rlt }}</p>
 				</form>
 			</td>
 		</tr>
 		{% endfor %}
 	</table>
 {% endif %}
+		{% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+        {% endif %}
 
 
 {% endblock %}

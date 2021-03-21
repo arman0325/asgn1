@@ -53,7 +53,7 @@ class Record(models.Model):
 	userId = models.ForeignKey(GymUser,
                               on_delete=models.CASCADE,
                               related_name='GymRoom')
-	entryTime = models.DateTimeField(default=timezone.now)
+	entryTime = models.DateTimeField(default=None)
 	leaveTime= models.DateTimeField(default=timezone.now)
 	objects = models.Manager()
 
