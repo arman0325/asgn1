@@ -16,21 +16,49 @@ class GymUser(models.Model):
 	class Meta:
 		ordering = ('-id',)
 
+
 	def __str__(self):
-		return self.name
+		return f'{self.id} {self.name}'
 		
 
-class GymroomRecord(models.Model):
+class GymNow(models.Model):
+	userId = models.ForeignKey(GymUser,
+                              on_delete=models.CASCADE,
+                              related_name='GymNow')
+	entryTime = models.DateTimeField(default=timezone.now)
+	objects = models.Manager()
+
+	class Meta:
+		ordering = ('-entryTime',)
+
+	def __str__(self):
+		return f'{self.userId} entry at {self.entryTime}'
+
+class GymWaiting(models.Model):
+	userId = models.ForeignKey(GymUser,
+                              on_delete=models.CASCADE,
+                              related_name='GymWaiting')
+	waitTime = models.DateTimeField(default=timezone.now)
+	objects = models.Manager()
+
+	class Meta:
+		ordering = ('-waitTime',)
+
+	def __str__(self):
+		return f'{self.userId} wait from {self.waitTime}'
+
+
+class Record(models.Model):
 	"""docstring for GymRoom"""
 	userId = models.ForeignKey(GymUser,
                               on_delete=models.CASCADE,
                               related_name='GymRoom')
-	time = models.DateTimeField(default=None)
+	entryTime = models.DateTimeField(default=timezone.now)
 	leaveTime= models.DateTimeField(default=timezone.now)
 	objects = models.Manager()
 
 	class Meta:
-		ordering = ('-time',)
+		ordering = ('-entryTime',)
 
 	def __str__(self):
-		return self.userId
+		return f'{self.userId} entry at {self.entryTime} and leave at {self.leaveTime}'

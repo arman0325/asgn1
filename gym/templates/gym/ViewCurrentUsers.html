@@ -1,0 +1,74 @@
+{% extends "header.html" %}
+
+{% block title %}User Table in Gym Room{% endblock %}
+
+{% block content %}
+<h1>Gym room</h1>
+{% if users|length >= 8 %}
+	<h2>Full</h2>
+{% endif %}
+<table class="table table-hover table-sm">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>User ID</th>
+			<th>User Name</th>
+			<th>Entry Time</th>
+			{% if admin %}
+			<th>Action</th>
+			{% endif %}
+		</tr>
+	</thead>
+	<tbody id="myTable">
+		{%for user in users%}
+		<tr>
+			<td>{{forloop.counter}}</td>
+			<td>{{user.userId.id}}</td>
+			<td>{{user.userId.name}}</td>
+			<td>{{user.entryTime}}</td>
+			{% if admin %}
+			<td>
+				<form>
+					<input type="hidden" name="userId" value="{{user.userId}}">
+					<input type="hidden" name="entryTime" value="{{user.entryTime}}">
+					<button type="button" class="btn btn-primary">leave Gym</button>
+				</form>
+			</td>
+			{% endif%}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% if users|length >= 5 %}
+	<h1>Waiting List</h1>
+	<table class="table table-hover table-sm">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>User ID</th>
+				<th>User Name</th>
+				<th>waitTime</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		{%for waituser in waitUsers%}
+		<tr>
+			<td>{{forloop.counter}}</td>
+			<td>{{waituser.userId.id}}</td>
+			<td>{{waituser.userId.name}}</td>
+			<td>{{waituser.waitTime}}</td>
+			<td>
+				<form action="/gym/addGym" method="get">
+					<input type="hidden" name="userId" value="{{waituser.userId.id}}">
+					<input type="hidden" name="waitTime" value="{{waituser.waitTime}}">
+					<button type="submit" class="btn btn-primary">Gym</button>
+				</form>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endif %}
+
+
+{% endblock %}

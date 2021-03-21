@@ -1,13 +1,28 @@
-<h1>User table</h1>
-<table>
-	<tr>
-		<th>User ID</th>
-		<th>User Name</th>
-	</tr>
-	{%for user in users%}
-	<tr>
-		<td>{{user.id}}</td>
-		<td>{{user.name}}</td>
-	</tr>
-	{% endfor %}
+{% extends "header.html" %}
+
+{% block title %}User Table{% endblock %}
+
+{% block content %}
+<table class="table table-hover table-sm">
+	<thead>
+		<tr>
+			<th>User ID</th>
+			<th>User Name</th>
+			<th>User Type</th>
+		</tr>
+	</thead>
+	<tbody id="myTable">
+		{%for user in users%}
+		<tr>
+			<td>{{user.id}}</td>
+			<td>{{user.name}}</td>
+			{% if user.userType == 'E'%}
+				<td>Employee</td>
+			{% else %}
+				<td>Student</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+	</tbody>
 </table>
+{% endblock %}

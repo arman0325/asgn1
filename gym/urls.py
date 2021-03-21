@@ -7,5 +7,8 @@ urlpatterns = [
     # post views
     path('export', views.exportGymUser, name='export_GymUser'),
     path('', views.index, name='index'),
+    path('gymroom', views.viewCurrentUsers, name='viewCurrentUsers'),
+    path('addGym', views.addGym, name='addGym'),
+    #url(r'^addGym/$', views.addGym, name="addGym")
 
 ]

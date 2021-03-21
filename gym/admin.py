@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GymUser, GymroomRecord
+from .models import GymUser, Record, GymNow, GymWaiting
 
 @admin.register(GymUser)
 class GymUserAdmin(admin.ModelAdmin):
@@ -7,6 +7,17 @@ class GymUserAdmin(admin.ModelAdmin):
 	search_fields = ('id', 'name','userType')
 	ordering = ('-id', 'name')
 
-@admin.register(GymroomRecord)
-class GymroomRecordAdmin(admin.ModelAdmin):
-	list_display = ('time','leaveTime')
+@admin.register(GymNow)
+class GymNowAdmin(admin.ModelAdmin):
+	list_display = ('userId', 'entryTime')
+	ordering = ('entryTime',)
+
+@admin.register(GymWaiting)
+class GymWaitingAdmin(admin.ModelAdmin):
+	list_display = ('userId', 'waitTime')
+	ordering = ('waitTime',)
+
+@admin.register(Record)
+class RecordAdmin(admin.ModelAdmin):
+	list_display = ('userId', 'entryTime','leaveTime')
+	ordering = ('entryTime',)
