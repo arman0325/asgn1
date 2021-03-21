@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from .models import GymUser, GymNow, GymWaiting
-from .forms import GymNowForm
+from .forms import GymNowForm, GymWaitForm
 
 
 from django.contrib import messages
@@ -45,21 +45,40 @@ def viewCurrentUsers(request):
 	else:
 		gym_form = GymNowForm()
 
-
-
 	return render(request, 'gym/ViewCurrentUsers.html',
 							{'users':users, 
 							'waitUsers':waitUsers,
 							'gym_form' : gym_form
 							})
-	
+
+def addForm(request):
+	new_user = None
+	number = GymNow.objects.all().count()
+	if number<8:
+		gym_form = GymNowForm()
+	else:
+		gym_form = GymWaitForm()
+	if request.method == 'POST' and number < 8:
+		gym_form = GymNowForm(data=request.POST)
+		if gym_form.is_valid():
+			new_user = gym_form.save(commit=False)
+			new_user.save()
+			return redirect('/gym/gymroom')
+	elif request.method =='POST' and number >= 8:
+		gym_form = GymWaitForm(data=request.POST)
+		if gym_form.is_valid():
+			new_user = gym_form.save(commit=False)
+			new_user.save()
+			return redirect('/gym/gymroom')
+
+	return render(request, 'gym/insertForm.html',
+							{'gym_form' : gym_form})
+
 
 def addGym(request):  
-
     number = GymNow.objects.all().count()
     request.encoding='utf-8'
     if 'userId' in request.GET and request.GET['userId'] and number<8:
-        message = '你搜索的内容为: ' + request.GET['userId']
         id = request.GET['userId']
         user = GymUser.objects.get(pk=id)
         new_user = GymNow.objects.create(userId=user)
@@ -67,7 +86,6 @@ def addGym(request):
         print(user)
         GymWaiting.objects.filter(userId=id).delete()
         messages.success(request,"Action successful")
-
 
     else:
         messages.success(request,"Gym room is full. Action unsuccessful")

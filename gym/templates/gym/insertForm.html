@@ -1,0 +1,17 @@
+{% extends "header.html" %}
+{% block title %}User Table in Gym Room{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+    	<label>User: </label>
+    	{{gym_form.userId}}
+    </div>
+    <div class="form-group">
+    	<label>Time: </label>
+    	{{gym_form.entryTime}}
+    	{{gym_form.waitTime}}
+    </div>
+    <button type="submit" class="btn btn-primary">Gym</button>
+</form>
+{% endblock %}

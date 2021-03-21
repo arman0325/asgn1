@@ -9,6 +9,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('gymroom', views.viewCurrentUsers, name='viewCurrentUsers'),
     path('addGym', views.addGym, name='addGym'),
-    #url(r'^addGym/$', views.addGym, name="addGym")
+    path('addForm', views.addForm, name='addForm'),
 
 ]
