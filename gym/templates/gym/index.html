@@ -2,8 +2,30 @@
 
 {% block title %}User Table{% endblock %}
 
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    }
+    );
+</script>
+{% endblock %}
+
 {% block content %}
+{% if not admin %}
 <a href="/gym/export"><button type="button" class="btn btn-primary">download CSV</button></a>
+<br><br>
+<form>
+	<input class="form-control form-control-dark w-100" type="text" id="myInput" placeholder="Search" aria-label="Search">
+</form>
+{% endif %}
 <table class="table table-hover table-sm">
 	<thead>
 		<tr>

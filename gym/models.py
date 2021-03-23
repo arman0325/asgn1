@@ -49,12 +49,11 @@ class GymWaiting(models.Model):
 
 
 class Record(models.Model):
-	"""docstring for GymRoom"""
 	userId = models.ForeignKey(GymUser,
                               on_delete=models.CASCADE,
                               related_name='GymRoom')
 	entryTime = models.DateTimeField(default=None)
-	leaveTime= models.DateTimeField(default=timezone.now)
+	leaveTime= models.DateTimeField(auto_now=True)
 	objects = models.Manager()
 
 	class Meta:

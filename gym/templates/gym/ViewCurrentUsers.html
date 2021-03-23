@@ -4,24 +4,28 @@
 
 {% block content %}
 <h1>Gym room</h1>
-{% if users|length >= 8 %}
+{% if users|length >= max%}
 	<div class="container">
 	 	<div class="row">
 			<div class="col-sm">
 				<h2>Full</h2>
 			</div>
+			{% if admin %}
 			<div class="col-sm">
 				<form>
-					<a href="/gym/addForm">
+					<a href="/gym/admit/addForm">
 						<button type="button" class="btn btn-primary">add to waiting</button>
 					</a>
 				</form>
 			</div>
+			{% endif %}
 		</div>
 	</div>
-{% else %}
+{% elif admin %}
 	<form>
-		<a href="/gym/addForm">
+		<a href="/gym/admit/addForm">
+			<input type="hidden" name="userId" value="{{user.id}}">
+			<input type="hidden" name="userId" value="{{user.entryTime}}">
 			<button type="button" class="btn btn-primary">add to gym</button>
 		</a>
 	</form>
@@ -49,10 +53,10 @@
 			<td>{{user.entryTime}}</td>
 			{% if admin %}
 			<td>
-				<form>
-					<input type="hidden" name="userId" value="{{user.userId}}">
+				<form action="/gym/admit/leaveGym" method='get'>
+					<input type="hidden" name="userId" value="{{user.userId.id}}">
 					<input type="hidden" name="entryTime" value="{{user.entryTime}}">
-					<button type="button" class="btn btn-primary">leave Gym</button>
+					<button type="submit" class="btn btn-primary">leave Gym</button>
 				</form>
 			</td>
 			{% endif%}
@@ -60,35 +64,52 @@
 		{% endfor %}
 	</tbody>
 </table>
-	<h1>Waiting List</h1>
-	<table class="table table-hover table-sm">
-		<thead>
+	{% if users|length >= max%}
+		<h1>Waiting List</h1>
+		<table class="table table-hover table-sm">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>User ID</th>
+					<th>User Name</th>
+					<th>waitTime</th>
+					{% if admin %}
+					<th>Action</th>
+					{% endif %}
+				</tr>
+			</thead>
+			{%for waituser in waitUsers%}
 			<tr>
-				<th>#</th>
-				<th>User ID</th>
-				<th>User Name</th>
-				<th>waitTime</th>
-				<th>Action</th>
+				<td>{{forloop.counter}}</td>
+				<td>{{waituser.userId.id}}</td>
+				<td>{{waituser.userId.name}}</td>
+				<td>{{waituser.waitTime}}</td>
+				{% if forloop.first and admin %}
+				<td>
+					<div class="row mx-auto">
+						<div class="col-sm">
+							<form action="/gym/admit/addGym" method='get'>
+								<div class="form-group">
+									<input type="hidden" name="userId" value="{{waituser.userId.id}}">
+									<button type="submit" class="btn btn-primary">add to Gym</button>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm">
+							<form action="/gym/importRemove" method='get' onsubmit="return confirm('Do you confirm to delete {{waituser.userId.id}} {{waituser.userId.name}}?')">
+								<div class="form-group">
+									<input type="hidden" name="userId" value="{{waituser.userId.id}}">
+									<button type="submit" class="btn btn-primary">Delete</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</td>
+				{% endif %}
 			</tr>
-		</thead>
-		{%for waituser in waitUsers%}
-		<tr>
-			<td>{{forloop.counter}}</td>
-			<td>{{waituser.userId.id}}</td>
-			<td>{{waituser.userId.name}}</td>
-			<td>{{waituser.waitTime}}</td>
-			{% if forloop.first %}
-			<td>
-				<form action="/gym/addGym" method='get'>
-					<input type="hidden" name="userId" value="{{waituser.userId.id}}">
-					<button type="submit" class="btn btn-primary">add to Gym</button>
-				</form>
-			</td>
-			{% endif %}
-		</tr>
-		{% endfor %}
-	</table>
-
+			{% endfor %}
+		</table>
+	{% endif %}
 
 		{% if messages %}
         <script>
