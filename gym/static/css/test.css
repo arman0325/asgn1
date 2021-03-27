@@ -1,3 +1,9 @@
-h1 {
+#fullMsg {
 	color: red;
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
 }

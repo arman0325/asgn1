@@ -9,7 +9,9 @@ class GymUser(models.Model):
 
 	id = models.CharField(max_length = 8, primary_key = True)
 	name = models.CharField(max_length = 32)
-	userType = models.CharField(max_length = 1, choices = USER_TYPES, default = 'S')
+	userType = models.CharField(max_length = 1, 
+								choices = USER_TYPES, 
+								default = 'S')
 
 	objects = models.Manager()
 
@@ -61,3 +63,5 @@ class Record(models.Model):
 
 	def __str__(self):
 		return f'{self.userId} entry at {self.entryTime} and leave at {self.leaveTime}'
+
+	

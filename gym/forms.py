@@ -12,3 +12,5 @@ class GymWaitForm(forms.ModelForm):
 		model = GymWaiting
 		fields = ('userId', 'waitTime')
 			
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

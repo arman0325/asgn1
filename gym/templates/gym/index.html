@@ -1,51 +1,63 @@
 {% extends "header.html" %}
 
-{% block title %}User Table{% endblock %}
+{% block title %}index{% endblock %}
 
-{% block scripts %}
-<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    $(document).ready(function(){
-        $("#myInput").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#myTable tr").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
-    }
-    );
-</script>
-{% endblock %}
 
 {% block content %}
-{% if not admin %}
-<a href="/gym/export"><button type="button" class="btn btn-primary">download CSV</button></a>
-<br><br>
-<form>
-	<input class="form-control form-control-dark w-100" type="text" id="myInput" placeholder="Search" aria-label="Search">
-</form>
-{% endif %}
-<table class="table table-hover table-sm">
-	<thead>
-		<tr>
-			<th>User ID</th>
-			<th>User Name</th>
-			<th>User Type</th>
-		</tr>
-	</thead>
-	<tbody id="myTable">
-		{%for user in users%}
-		<tr>
-			<td>{{user.id}}</td>
-			<td>{{user.name}}</td>
-			{% if user.userType == 'E'%}
-				<td>Employee</td>
-			{% else %}
-				<td>Student</td>
-			{% endif %}
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
+    <p>Enter the following command immediately to the right localhost:8000/gym/</p>
+    <p>I have provide the button and form to done the function im the web application</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Desciption</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>gymroom</td>
+                <td>Display the all user the gym room. If full that will display the waiting list of gym.</td>
+            </tr>
+            <tr>
+                <td>login</td>
+                <td>This is easy login of admin. Now is not have a account and password that just a button click to login.</td>
+            </tr>
+            <tr>
+                <td>logout</td>
+                <td>This is easy logout of admin. </td>
+            </tr>
+            <tr>
+                <td>admit/admitGym</td>
+                <td>Display the list of All GymUser, provide search in table function, export the CSV file and import the CSV file of new Gym User</td>
+            </tr>
+            <tr>
+                <td>admit/upload</td>
+                <td>Select the CSV file upload and import. After the operation, the import status will be displayed.</td>
+            </tr>
+            <tr>
+                <td>admit/export</td>
+                <td>it is a link to download the CSV file of GymUser</td>
+            </tr>
+            <tr>
+                <td>admit/addForm</td>
+                <td>Call the form to add user in gym. If the gym is full that will add to waiting list</td>
+            </tr>
+            <tr>
+                <td>admit/leaveGym</td>
+                <td>Add the user to record and delete the user from gym.</td>
+            </tr>
+            <tr>
+                <td>admit/addGym</td>
+                <td>Add the user from the waiting list.</td>
+            </tr>
+            <tr>
+                <td>admit/importRemove</td>
+                <td>Remove the user in the waiting list.</td>
+            </tr>
+            <tr>
+                <td>admit/setMax</td>
+                <td>Set the maximum number user in gym.</td>
+            </tr>
+        </tbody>
+    </table>
 {% endblock %}

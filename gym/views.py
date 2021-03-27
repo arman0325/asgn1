@@ -1,17 +1,24 @@
-import csv
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from .models import GymUser, GymNow, GymWaiting, Record
-from .forms import GymNowForm, GymWaitForm
-import os
-from datetime import datetime
 from django.contrib import messages
+from .models import GymUser, GymNow, GymWaiting, Record
+from .forms import GymNowForm, GymWaitForm, UploadFileForm
+import os, csv
+from datetime import datetime
+
+from gym.functions.functions import handle_uploaded_file
+
 # Create your views here.
 
-#it is the max number of gym room user
+#it is the max number of gym room user that will reset in server restart
+#can call setMaxUser to modify it
 maxNum = 8
+admin = False
+
+def index(request):
+	return render(request, 'gym/index.html')
 
 #export the csv of the GymUser
 def exportGymUser(request):
@@ -19,7 +26,6 @@ def exportGymUser(request):
 
 	writer = csv.writer(response)
 	writer.writerow(['ID','Name','User Type'])
-
 	for user in GymUser.objects.all().values_list('id','name','userType'):
 		writer.writerow(user)
 
@@ -27,22 +33,12 @@ def exportGymUser(request):
 	return response
 
 # show the all users
-def index(request):
+def list(request):
 	users = GymUser.objects.all()
-	return render(request, 'gym/index.html',{'users':users})
-
-#import the user to GymUser
-def importNew(request):
-	response = HttpResponse()
-	try:
-		with open('GymUser.csv', newline='') as csvfile:
-			rows = csv.reader(csvfile)
-			for row in rows:
-				response.write(row)
-		return response
-	except:
-		response.write("null data")
-		return response
+	return render(request, 'gym/list.html',
+							{'users':users,
+							'admin':admin
+							})
 
 #Remove the user in waiting list
 def importRemove(request):
@@ -51,7 +47,6 @@ def importRemove(request):
 		id = request.GET['userId']
 		GymWaiting.objects.filter(userId=id).delete()
 		messages.success(request,"Action successful")
-
 	else:
 		messages.success(request,"Action unsuccessful")
 	return redirect('/gym/admit/admitGym')
@@ -60,7 +55,6 @@ def importRemove(request):
 def viewCurrentUsers(request):
 	users = GymNow.objects.all().order_by('entryTime')
 	waitUsers = GymWaiting.objects.all().order_by('waitTime')
-	admin = False
 	return render(request, 'gym/ViewCurrentUsers.html',
 							{'users':users, 
 							'waitUsers':waitUsers,
@@ -95,13 +89,13 @@ def addForm(request):
 		id = request.POST
 		gym_form = GymWaitForm(data=request.POST)
 		if gym_form.is_valid():
-			if not GymNow.objects.filter(userId = id['userId']).exists():
-				if not GymWaiting.objects.filter(userId = id['userId']).exists():
-					new_user = gym_form.save(commit=False)
-					new_user.save()
-					return redirect('/gym/admit/admitGym')
-				else:
-					return HttpResponse("error")
+			# NowExists and WaitExists is using to check the user not in the list that cannot be repeat
+			NowExists = GymNow.objects.filter(userId = id['userId']).exists()
+			WaitExists = GymWaiting.objects.filter(userId = id['userId']).exists()
+			if not NowExists and not WaitExists:
+				new_user = gym_form.save(commit=False)
+				new_user.save()
+				return redirect('/gym/admit/admitGym')
 			else:
 				return HttpResponse("error")
 	return render(request, 'gym/insertForm.html',
@@ -113,12 +107,13 @@ def addGym(request):
 	request.encoding='utf-8'
 	if 'userId' in request.GET and request.GET['userId'] and number < maxNum:
 		id = request.GET['userId']
-		user = GymUser.objects.get(pk=id)
+		user = GymUser.objects.get(pk=id) #find the user data in GymUser to create in next line
 		new_user = GymNow.objects.create(userId=user) # add to gymNow
 		GymWaiting.objects.filter(userId=id).delete() # delete from gymWait
+		# call the js to alert the message
 		messages.success(request,"Action successful")
-
 	else:
+		# call the js to alert the message
 		messages.success(request,"Gym room is full. Action unsuccessful")
 	return redirect('/gym/admit/admitGym')
 	
@@ -126,21 +121,23 @@ def addGym(request):
 def SetMaxUsers(request):
 	request.encoding='utf-8'
 	if 'maxNo' in request.GET and request.GET['maxNo']:
-
+		# global the maxNum to update it
 		global maxNum
 		maxNum = int(request.GET['maxNo'])
-	return render(request, 'gym/setMax.html')
-
-def AdmitUser(request):
-	users = GymNow.objects.all().order_by('entryTime')
-	waitUsers = GymWaiting.objects.all().order_by('waitTime')
-	admin = True
-	return render(request, 'gym/ViewCurrentUsers.html',
-							{'users':users, 
-							'waitUsers':waitUsers,
-							'admin':admin,
-							'max':maxNum
+	return render(request, 'gym/setMax.html',
+							{'admin':admin,
+							'maxNum':maxNum
 							})
+
+def easyLogin(request):
+	global admin
+	admin = True
+	return redirect('/gym/admit/admitGym')
+
+def easyLogout(request):
+	global admin
+	admin = False
+	return redirect('/gym/gymroom')
 
 def LeaveGym(request):
 	request.encoding='utf-8'
@@ -151,8 +148,43 @@ def LeaveGym(request):
 		new_user = Record.objects.create(userId=user, entryTime=time.entryTime)
 		new_user.save() #save to Record
 		GymNow.objects.filter(userId=id).delete() #delete the object
+		# call the js to alert the message
 		messages.success(request,"Action successful")
 	else:
+		# call the js to alert the message
 		messages.success(request,"Action unsuccessful")
 	return redirect('/gym/admit/admitGym')
 
+
+def upload(request):
+	form = UploadFileForm()
+	if request.method=="POST":
+		form = UploadFileForm(request.POST, request.FILES)
+		if form.is_valid():
+			handle_uploaded_file(request.FILES['file'])
+			response = HttpResponse()
+			try:
+				with open('gym/static/GymUser.csv', newline='') as csvfile:
+					rows = csv.reader(csvfile)
+					for row in rows:
+						try:
+							userID, userName = row[0], row[1]
+							if GymUser.objects.filter(id=row[0]).exists():
+								response.write("{} <span>User exists</span><br>".format(row[0]))
+								continue
+							else:
+								typeUser = 'S' if len(userID)==8 else 'E'
+								print(userID, userName, typeUser)
+								newUser = GymUser(id=userID, name=userName, userType=typeUser)
+								newUser.save()
+								response.write("<span style='color:red'>{} added</span><br>".format(newUser))
+						except:
+							print("error")
+				return response
+			except:
+				response.write("null data")
+				return response
+
+		else:
+			form = UploadFileForm()
+	return render(request, 'gym/upload.html',{'form':form, 'admin':admin})
