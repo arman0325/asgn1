@@ -1,10 +1,10 @@
 from django.test import Client, TestCase
 from .models import GymUser, GymNow, GymWaiting, Record
 from django.utils import timezone, dateformat
-# Create your tests here.
 from django.urls import reverse
-#This is test add the user to GymUser
+
 class GymUserModelTest(TestCase):
+	#This is test add the user to GymUser
 	def setUp(self):
 		self.user1 = GymUser.objects.create(id='12133174', name='Yuen Yiu Man', userType='S')
 		self.user2 = GymUser.objects.create(id='654321', name='Oliver Au', userType='E')
@@ -16,9 +16,8 @@ class GymUserModelTest(TestCase):
 		self.assertFalse(GymUser.objects.filter(id='12345678').exists())
 
 
-#GymNow and GymWait is the same model data
-#so there are not test two times
 class GymNowModelTest(TestCase):
+	#testing gymNow model
 	def setUp(self):
 		GymUser.objects.create(id='13345421', name='Peter Wong', userType='S')
 
@@ -30,11 +29,24 @@ class GymNowModelTest(TestCase):
 		self.assertEqual(filterUser.userId, user)
 		self.assertEqual(filterUser.entryTime, time)
 
+class GymWaitingModelTest(TestCase):
+	#testing gymWaiting model
+	def setUp(self):
+		GymUser.objects.create(id='13345421', name='Peter Wong', userType='S')
 
-#The record is saving the data of GymNow user leave
-#the data type will be userId(fk), entryTime and waitTime
-#This test is simulate a user leave the gym room and save the record
+	def test_addUser_to_waitingList(self):
+		user = GymUser.objects.get(pk='13345421')
+		time = timezone.now()
+		GymWaiting.objects.create(userId=user,waitTime=time)
+		filterUser = GymWaiting.objects.filter(userId=user)[0]
+		self.assertEqual(filterUser.userId, user)
+		self.assertEqual(filterUser.waitTime, time)
+
+
 class RecordModelTest(TestCase):
+	#The record is saving the data of GymNow user leave
+	#the data type will be userId(fk), entryTime and waitTime
+	#This test is simulate a user leave the gym room and save the record
 	def setUp(self):
 		#create GymUser
 		self.user = GymUser.objects.create(id='644987', name='Terri Wong', userType='E')
@@ -56,10 +68,12 @@ class RecordModelTest(TestCase):
 
 
 class testView(TestCase):
+	#testing the view in django
 	def setUp(self):
+		#setup of the client
 		self.client = Client()
-		self.user = GymUser.objects.create(id='644987', name='Terri Wong', userType='E')
 		#create GymNow user
+		self.user = GymUser.objects.create(id='644987', name='Terri Wong', userType='E')
 		self.enTime = timezone.now()
 		#create the gym user using the gym
 		GymNow.objects.create(userId=self.user,entryTime=self.enTime)
@@ -92,9 +106,6 @@ class testView(TestCase):
 
 	def test_leaveGymNow(self):
 		self.assertQuerysetEqual(Record.objects.all(), []) #the record none user
-		# test the index response
-		response = self.client.get(reverse('gym:index'))
-		self.assertEqual(response.status_code, 200)
 		#test the user leave the gym
 		response = self.client.get("/gym/admit/leaveGym", data={"userId": "644987"})
 		self.assertEqual(response.status_code, 302)
@@ -114,6 +125,9 @@ class testView(TestCase):
 		self.assertEqual(response.context['maxNum'], 10)
 
 	def test_redirectView(self):
+		# test the index response
+		response = self.client.get(reverse('gym:index'))
+		self.assertEqual(response.status_code, 200)
 		response = self.client.get("/gym/login")
 		self.assertEqual(response.status_code, 302)
 		response = self.client.get("/gym/logout")
