@@ -7,7 +7,9 @@ from .models import GymUser, GymNow, GymWaiting, Record
 from .forms import GymNowForm, GymWaitForm, UploadFileForm
 import os, csv
 from datetime import datetime
-
+from django.contrib.auth.models import auth, User
+from django.contrib.auth import authenticate,logout,login
+from django.contrib.auth.decorators import login_required
 from gym.functions.functions import handle_uploaded_file
 
 # Create your views here.
@@ -15,7 +17,11 @@ from gym.functions.functions import handle_uploaded_file
 #it is the max number of gym room user that will reset in server restart
 #can call setMaxUser to modify it
 maxNum = 8
-admin = False
+
+def handle_not_found(request, exception):
+	return render(request,'404.html')
+
+
 
 def index(request):
 	return render(request, 'gym/index.html')
@@ -52,7 +58,14 @@ def importRemove(request):
 	return redirect('/gym/admit/admitGym')
 
 # show sll users currently in the gym
+
 def viewCurrentUsers(request):
+
+	global admin
+	if request.user.is_authenticated:
+		admin=True
+	else:
+		admin=False
 	users = GymNow.objects.all().order_by('entryTime')
 	waitUsers = GymWaiting.objects.all().order_by('waitTime')
 	return render(request, 'gym/ViewCurrentUsers.html',
@@ -62,6 +75,7 @@ def viewCurrentUsers(request):
 							'max':maxNum
 							})
 
+@login_required
 def addForm(request):
 	new_user = None
 	number = GymNow.objects.all().count()
@@ -101,6 +115,7 @@ def addForm(request):
 	return render(request, 'gym/insertForm.html',
 							{'gym_form' : gym_form})
 
+@login_required
 # waiting list user add to gymNow
 def addGym(request):  
 	number = GymNow.objects.all().count()
@@ -118,6 +133,7 @@ def addGym(request):
 	return redirect('/gym/admit/admitGym')
 	
 # set the max number of user
+@login_required
 def SetMaxUsers(request):
 	request.encoding='utf-8'
 	if 'maxNo' in request.GET and request.GET['maxNo']:
@@ -129,16 +145,39 @@ def SetMaxUsers(request):
 							'maxNum':maxNum
 							})
 
+def userLogin(request):
+	if request.method=="POST":
+		username = request.POST['username']
+		password = request.POST['password']
+		user = auth.authenticate(request, username=username, password=password)
+		if user is not None:
+
+			login(request, user)
+			return redirect('/gym/admit/admitGym')
+		else:
+			return redirect('/gym')
+	else:
+
+		return render(request, 'gym/login.html')
+
 def easyLogin(request):
-	global admin
-	admin = True
-	return redirect('/gym/admit/admitGym')
+	username = request.POST['username']
+	password = request.POST['password']
+	user = authenticate(request, username=username, password=password)
+	if user is not None:
+		global admin
+		admin = True
 
-def easyLogout(request):
-	global admin
-	admin = False
-	return redirect('/gym/gymroom')
+		login(request, user)
+		return redirect('/gym/admit/admitGym')
+	else:
+		return redirect('/gym')
 
+def Logout(request):
+	auth.logout(request)
+	return redirect('/gym')
+
+@login_required
 def LeaveGym(request):
 	request.encoding='utf-8'
 	if 'userId' in request.GET and request.GET['userId']:
@@ -155,7 +194,7 @@ def LeaveGym(request):
 		messages.success(request,"Action unsuccessful")
 	return redirect('/gym/admit/admitGym')
 
-
+@login_required
 def upload(request):
 	form = UploadFileForm()
 	if request.method=="POST":
@@ -173,7 +212,7 @@ def upload(request):
 								response.write("{} <span>User exists</span><br>".format(row[0]))
 								continue
 							else:
-								typeUser = 'S' if len(userID)==8 else 'E'
+								typeUser = 'S' if len(userID) == 8 else 'E'
 								print(userID, userName, typeUser)
 								newUser = GymUser(id=userID, name=userName, userType=typeUser)
 								newUser.save()

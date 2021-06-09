@@ -1,5 +1,5 @@
 {% extends "header.html" %}
-
+{% load userFilter %}
 {% block title %}User Table in Gym Room{% endblock %}
 
 {% load static %}
@@ -47,17 +47,22 @@
 	<tbody id="myTable">
 		{%for user in users%}
 		<tr>
+			{% if admin %}
 			<td>{{forloop.counter}}</td>
-			<td>{{user.userId.id}}</td>
+			<td id="userId">{{user.userId.id }}</td>
 			<td>{{user.userId.name}}</td>
 			<td>{{user.entryTime}}</td>
-			{% if admin %}
 			<td>
 				<form action="/gym/admit/leaveGym" method='get'>
 					<input type="hidden" name="userId" value="{{user.userId.id}}">
 					<button type="submit" class="btn btn-primary">leave Gym</button>
 				</form>
 			</td>
+			{% elif not admin%}
+			<td>{{forloop.counter}}</td>
+			<td id="userId">{{user.userId.id|reId }}</td>
+			<td>{{user.userId.name|reName}}</td>
+			<td>{{user.entryTime}}</td>
 			{% endif%}
 		</tr>
 		{% endfor %}
@@ -79,10 +84,17 @@
 			</thead>
 			{%for waituser in waitUsers%}
 			<tr>
+				{% if admin%}
 				<td>{{forloop.counter}}</td>
 				<td>{{waituser.userId.id}}</td>
 				<td>{{waituser.userId.name}}</td>
 				<td>{{waituser.waitTime}}</td>
+				{% elif not admin %}
+				<td>{{forloop.counter}}</td>
+				<td>{{waituser.userId.id|reId}}</td>
+				<td>{{waituser.userId.name|reName}}</td>
+				<td>{{waituser.waitTime}}</td>
+				{% endif %}
 				{% if forloop.first and admin %}
 				<td>
 					<div class="row mx-auto">
@@ -116,6 +128,8 @@
                 alert('{{ msg.message }}');
             {% endfor %}
         </script>
+
+		
         {% endif %}
 
 

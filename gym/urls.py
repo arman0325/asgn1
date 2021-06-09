@@ -2,7 +2,6 @@ from django.urls import path
 from . import views
 
 app_name = 'gym'
-
 urlpatterns = [
     # post views
     #Path: /gym/
@@ -10,9 +9,10 @@ urlpatterns = [
     #Path: /gym/gymroom
     path('gymroom', views.viewCurrentUsers, name='viewCurrentUsers'),
     #Path: /gym/login
-    path('login', views.easyLogin, name='easyLogin'),
+    path('login', views.userLogin, name='userLogin'),
+
     #Path: /gym/logout
-    path('logout', views.easyLogout, name='easyLogout'),
+    path('logout', views.Logout, name='Logout'),
     #Path: /gym/admit/lsit
     path('admit/list', views.list, name='list'),
     #Path: /gym/admit/admitGym
@@ -33,3 +33,5 @@ urlpatterns = [
     path('admit/setMax', views.SetMaxUsers, name='SetMaxUsers'),
 
 ]
+
+handler404="gym.views.handle_not_found"
