@@ -16,12 +16,12 @@ from gym.functions.functions import handle_uploaded_file
 
 #it is the max number of gym room user that will reset in server restart
 #can call setMaxUser to modify it
-maxNum = 8
+f = open("gym/static/Number.txt","r")
+maxNum = int(f.readline())
+f.close()
 
 def handle_not_found(request, exception):
 	return render(request,'404.html')
-
-
 
 def index(request):
 	return render(request, 'gym/index.html')
@@ -104,6 +104,11 @@ def SetMaxUsers(request):
 		# global the maxNum to update it
 		global maxNum
 		maxNum = int(request.GET['maxNo'])
+		f = open("gym/static/Number.txt","w")
+		f.write(str(maxNum))
+		f.close()
+
+	
 	return render(request, 'gym/setMax.html',
 							{'admin':admin,
 							'maxNum':maxNum
