@@ -65,3 +65,15 @@ class Record(models.Model):
 		return f'{self.userId} entry at {self.entryTime} and leave at {self.leaveTime}'
 
 	
+class RoomStatus(models.Model):
+	roomId = models.CharField(max_length = 2, primary_key = True)
+	roomName = models.CharField(max_length = 32)
+	roomAction = models.CharField(max_length = 32)
+	roomStatus = models.CharField(max_length = 6)
+	objects = models.Manager()
+
+	class Meta:
+		ordering = ('roomId',)
+
+	def __str__(self):
+		return f'{self.roomId} {self.roomName} {self.roomAction} {self.roomStatus}'

@@ -12,23 +12,32 @@
 <div class="container">
 	<div class="row">
 		<div class="col-sm">
-			<h1>Gym room {%if users|length >= max %} <span id="fullMsg">Full</span>{% endif %}</h1>
+			<h1>Gym room {%if users|length >= max %} <span id="fullMsg">Full</span>{% endif %}{% if not status|checkOpen %}<span id="fullMsg"> Close</span>{% endif %}</h1>
 		</div>
-		<div class="col-sm"  style="text-align:right;  margin: auto;">
+		<div class="col-sm-3"  style="text-align:right;  margin: auto;">
 			{% if admin and users|length >= max %}
-			<form>
-				<a href="/gym/admit/addForm">
-					<button type="button" class="btn btn-primary">add to waiting</button>
-				</a>
-			</form>
+			<a href="/gym/admit/addForm">
+				<button type="button" class="btn btn-primary">add to waiting</button>
+			</a>
 			{% elif admin %}
-			<form>
-				<a href="/gym/admit/addForm" {% if waitUsers %} class="disabled"{% endif %}>
-					<button type="button" class="btn btn-primary">add to gym</button>
-				</a>
-			</form>
+			<a href="/gym/admit/addForm" {% if waitUsers or not status|checkOpen %} class="disabled"{% endif %}>
+				<button type="button" class="btn btn-primary">add to gym</button>
+			</a>
 			{% endif %}
 		</div>
+		{% if admin %}
+		<div class="col-sm-1"  style="text-align:right;  margin: auto;">
+			<a href="/gym/admit/clearGym">
+				<button type="button" class="btn btn-primary">clear</button>
+			</a>
+		</div>
+		<div class="col-sm-1"  style="text-align:right;  margin: auto;">
+			<a href="/gym/admit/GymStatus">
+				<button type="button" class="btn btn-primary" onClick="confirm('{% if status|checkOpen %}Are you close?{% else %}Are you open?{% endif %}')">Status</button>
+			</a>
+		</div>
+		{% endif %}
+		
 	</div>
 </div>
 
@@ -122,15 +131,14 @@
 		</table>
 	{% endif %}
 
-		{% if messages %}
-        <script>
-            {% for msg in messages %}
-                alert('{{ msg.message }}');
-            {% endfor %}
-        </script>
+	{% if messages %}
+    <script>
+        {% for msg in messages %}
+            alert('{{ msg.message }}');
+        {% endfor %}
+    </script>
 
-		
-        {% endif %}
+    {% endif %}
 
 
 {% endblock %}

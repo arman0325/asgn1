@@ -1,0 +1,61 @@
+{% extends "header.html" %}
+{% load userFilter %}
+{% block title %}User Table in Gym Room{% endblock %}
+
+{% load static %}
+{% block cssfile %}
+<link href="{% static '/css/test.css' %}" rel="stylesheet">
+{% endblock %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    }
+    );
+</script>
+{% endblock %}
+{% block content %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm">
+			<h1>Gym room using Record</h1>
+		</div>
+	</div>
+</div>
+{% if admin %}
+<form>
+	<input class="form-control form-control-dark w-100" type="text" id="myInput" placeholder="Search" aria-label="Search">
+</form>
+<table class="table table-hover table-sm">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>User ID</th>
+			<th>User Name</th>
+			<th>Entry Time</th>
+			<th>Leave Time</th>
+		</tr>
+	</thead>
+	<tbody id="myTable">
+		{%for user in users%}
+		<tr>
+			<td>{{forloop.counter}}</td>
+			<td id="userId">{{user.userId.id }}</td>
+			<td>{{user.userId.name}}</td>
+			<td>{{user.entryTime}}</td>
+			<td>{{user.leaveTime}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+{% endblock %}

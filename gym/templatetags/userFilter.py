@@ -19,3 +19,10 @@ def reName(value):
 		name += char
 
 	return name
+
+@register.filter
+def checkOpen(value):
+	if value == "True":
+		return True
+	else:
+		return False

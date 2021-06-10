@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GymUser, Record, GymNow, GymWaiting
+from .models import GymUser, Record, GymNow, GymWaiting, RoomStatus
 
 @admin.register(GymUser)
 class GymUserAdmin(admin.ModelAdmin):
@@ -21,3 +21,8 @@ class GymWaitingAdmin(admin.ModelAdmin):
 class RecordAdmin(admin.ModelAdmin):
 	list_display = ('userId', 'entryTime','leaveTime')
 	ordering = ('entryTime',)
+
+@admin.register(RoomStatus)
+class RecordAdmin(admin.ModelAdmin):
+	list_display = ('roomId', 'roomName','roomAction','roomStatus')
+	ordering = ('roomId',)

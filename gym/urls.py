@@ -32,6 +32,12 @@ urlpatterns = [
     #Path: /gym/admit/setMax
     path('admit/setMax', views.SetMaxUsers, name='SetMaxUsers'),
 
+    path('admit/record', views.viewRecord, name='viewRecord'),
+
+    path('admit/clearGym', views.clearGym, name='clearGym'),
+
+    path('admit/GymStatus', views.GymStatus, name='GymStatus'),
+    
 ]
 
 handler404="gym.views.handle_not_found"

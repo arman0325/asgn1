@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.contrib import messages
-from .models import GymUser, GymNow, GymWaiting, Record
+from .models import GymUser, GymNow, GymWaiting, Record, RoomStatus
 from .forms import GymNowForm, GymWaitForm, UploadFileForm
 import os, csv
 from datetime import datetime
@@ -68,11 +68,15 @@ def viewCurrentUsers(request):
 		admin=False
 	users = GymNow.objects.all().order_by('entryTime')
 	waitUsers = GymWaiting.objects.all().order_by('waitTime')
+	room = RoomStatus.objects.get(roomId=1)
+	if room.roomStatus=="False":
+		clear()
 	return render(request, 'gym/ViewCurrentUsers.html',
 							{'users':users, 
 							'waitUsers':waitUsers,
 							'admin':admin,
-							'max':maxNum
+							'max':maxNum,
+							'status':room.roomStatus
 							})
 
 @login_required
@@ -227,3 +231,35 @@ def upload(request):
 		else:
 			form = UploadFileForm()
 	return render(request, 'gym/upload.html',{'form':form, 'admin':admin})
+
+
+@login_required
+def viewRecord(request):
+	users = Record.objects.all().order_by('entryTime')
+	return render(request, 'gym/record.html',
+							{'users':users,
+							'admin':admin
+							})
+
+def clear():
+	users = GymNow.objects.all()
+	for x in users:
+		new_user = Record.objects.create(userId=x.userId, entryTime=x.entryTime)
+		new_user.save()
+		GymNow.objects.filter(userId=x.userId).delete()
+	users = GymWaiting.objects.all()
+	for x in users:
+		GymWaiting.objects.filter(userId=x.userId).delete()
+	
+def clearGym(request):
+	clear()
+	return redirect('/gym/admit/admitGym')
+
+def GymStatus(request):
+	room = RoomStatus.objects.get(roomId=1)
+	if room.roomStatus=="False":
+		room.roomStatus=True
+	else:
+		room.roomStatus=False
+	room.save()
+	return redirect('/gym/admit/admitGym')
