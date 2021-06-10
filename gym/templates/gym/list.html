@@ -31,6 +31,7 @@
 			<th>User ID</th>
 			<th>User Name</th>
 			<th>User Type</th>
+			<th>User Record</th>
 		</tr>
 	</thead>
 	<tbody id="myTable">
@@ -43,6 +44,7 @@
 			{% else %}
 				<td>Student</td>
 			{% endif %}
+			<td><a href="/gym/admit/record/{{user.id}}"><button class="btn btn-success">Record</button></a></td>
 		</tr>
 		{% endfor %}
 	</tbody>

@@ -14,3 +14,4 @@ class GymWaitForm(forms.ModelForm):
 			
 class UploadFileForm(forms.Form):
     file = forms.FileField()
+

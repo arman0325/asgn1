@@ -1,5 +1,9 @@
-#fullMsg {
+#RedMsg {
 	color: red;
+}
+
+#closeStatus{
+  color:#dddddd;
 }
 
 .disabled {

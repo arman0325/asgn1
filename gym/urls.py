@@ -21,8 +21,6 @@ urlpatterns = [
     path('admit/upload', views.upload, name='upload'),
     #Path: /gym/admit/export
     path('admit/export', views.exportGymUser, name='export_GymUser'),
-    #Path: /gym/admit/addForm
-    path('admit/addForm', views.addForm, name='addForm'),
     #Path: /gym/admit/leaveGym
     path('admit/leaveGym', views.LeaveGym, name='LeaveGym'),
     #Path: /gym/admit/addGym
@@ -33,11 +31,14 @@ urlpatterns = [
     path('admit/setMax', views.SetMaxUsers, name='SetMaxUsers'),
 
     path('admit/record', views.viewRecord, name='viewRecord'),
+    path('admit/record/<int:id>/', views.viewRecord, name='viewRecord'),
 
     path('admit/clearGym', views.clearGym, name='clearGym'),
 
     path('admit/GymStatus', views.GymStatus, name='GymStatus'),
-    
+
+    path('admit/addUser/<int:type>', views.addPage, name='addPage'),
+
 ]
 
 handler404="gym.views.handle_not_found"

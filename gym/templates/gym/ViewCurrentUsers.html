@@ -4,23 +4,23 @@
 
 {% load static %}
 {% block cssfile %}
-<link href="{% static '/css/test.css' %}" rel="stylesheet">
+<link href="{% static '/css/test.css' %}?{% now 'U' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-
-<div class="container">
+<body>
+<div class="container ">
 	<div class="row">
 		<div class="col-sm">
-			<h1>Gym room {%if users|length >= max %} <span id="fullMsg">Full</span>{% endif %}{% if not status|checkOpen %}<span id="fullMsg"> Close</span>{% endif %}</h1>
+			<h1>Gym room {%if users|length >= max %} <span id="RedMsg">Full</span>{% endif %}{% if not status|checkOpen %}<span id="RedMsg"> Close</span>{% endif %}</h1>
 		</div>
 		<div class="col-sm-3"  style="text-align:right;  margin: auto;">
 			{% if admin and users|length >= max %}
-			<a href="/gym/admit/addForm">
+			<a href="/gym/admit/addUser/1">
 				<button type="button" class="btn btn-primary">add to waiting</button>
 			</a>
 			{% elif admin %}
-			<a href="/gym/admit/addForm" {% if waitUsers or not status|checkOpen %} class="disabled"{% endif %}>
+			<a href="/gym/admit/addUser/0" {% if waitUsers or not status|checkOpen %} class="disabled"{% endif %}>
 				<button type="button" class="btn btn-primary">add to gym</button>
 			</a>
 			{% endif %}
@@ -41,7 +41,7 @@
 	</div>
 </div>
 
-<table class="table table-hover table-sm">
+<table class="table table-hover table-sm"  {% if not status|checkOpen %}id="closeStatus"{% endif %}>
 	<thead>
 		<tr>
 			<th>#</th>
@@ -139,6 +139,6 @@
     </script>
 
     {% endif %}
-
+</body>
 
 {% endblock %}

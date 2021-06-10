@@ -80,46 +80,6 @@ def viewCurrentUsers(request):
 							})
 
 @login_required
-def addForm(request):
-	new_user = None
-	number = GymNow.objects.all().count()
-	#return the form type
-	if number < maxNum:
-		gym_form = GymNowForm()
-	else:
-		gym_form = GymWaitForm()
-
-	# get the POST data and action
-	# gym room is not full 
-	if request.method == 'POST' and number < maxNum:
-		id = request.POST
-		gym_form = GymNowForm(data=request.POST)
-		if gym_form.is_valid():
-			if not GymNow.objects.filter(userId = id['userId']).exists():
-				new_user = gym_form.save(commit=False)
-				new_user.save()
-				return redirect('/gym/admit/admitGym')
-			else:
-				return HttpResponse("error")
-
-	# gym room is full add to waiting list
-	elif request.method =='POST' and number >= maxNum:
-		id = request.POST
-		gym_form = GymWaitForm(data=request.POST)
-		if gym_form.is_valid():
-			# NowExists and WaitExists is using to check the user not in the list that cannot be repeat
-			NowExists = GymNow.objects.filter(userId = id['userId']).exists()
-			WaitExists = GymWaiting.objects.filter(userId = id['userId']).exists()
-			if not NowExists and not WaitExists:
-				new_user = gym_form.save(commit=False)
-				new_user.save()
-				return redirect('/gym/admit/admitGym')
-			else:
-				return HttpResponse("error")
-	return render(request, 'gym/insertForm.html',
-							{'gym_form' : gym_form})
-
-@login_required
 # waiting list user add to gymNow
 def addGym(request):  
 	number = GymNow.objects.all().count()
@@ -234,11 +194,15 @@ def upload(request):
 
 
 @login_required
-def viewRecord(request):
+def viewRecord(request,id=None):
 	users = Record.objects.all().order_by('entryTime')
+	if id != None:
+		users = Record.objects.filter(userId=id)
+
 	return render(request, 'gym/record.html',
 							{'users':users,
-							'admin':admin
+							'admin':admin,
+							'id':id
 							})
 
 def clear():
@@ -263,3 +227,37 @@ def GymStatus(request):
 		room.roomStatus=False
 	room.save()
 	return redirect('/gym/admit/admitGym')
+
+@login_required
+def addPage(request, type=0):
+	users = GymUser.objects.all().order_by('id')
+	if request.method == 'POST':
+		da = request.POST.get('userId').split()
+		try:
+			if not GymNow.objects.filter(userId = da[0]).exists():
+				user = GymUser.objects.get(pk=da[0])
+				
+				if type==1:
+					new_user = GymWaiting.objects.create(userId=user)
+				else:
+					new_user = GymNow.objects.create(userId=user)
+				new_user.save()
+				return redirect('/gym/admit/admitGym')
+			else:
+				return render(request, 'gym/addForm.html',
+								{'users' : users,
+								'msg':'The user is exist',
+								'admin':admin
+								})
+		except:
+			return render(request, 'gym/addForm.html',
+								{'users' : users,
+								'msg':'The user is not admitted',
+								'admin':admin
+								})
+	else:
+		return render(request, 'gym/addForm.html',
+							{'users' : users,
+							'msg':'',
+							'admin':admin
+							})
