@@ -26,6 +26,7 @@
                 <td>logout</td>
                 <td>This is easy logout of admin. </td>
             </tr>
+        {% if admin %}
             <tr>
                 <td>admit/admitGym</td>
                 <td>Display the list of All GymUser, provide search in table function, export the CSV file and import the CSV file of new Gym User</td>
@@ -39,16 +40,14 @@
                 <td>it is a link to download the CSV file of GymUser</td>
             </tr>
             <tr>
-                <td>admit/addForm</td>
-                <td>Call the form to add user in gym. If the gym is full that will add to waiting list</td>
+                <td>admit/addGym/type</td>
+                <td>Add the user. type:0/1.<br>
+                0: Add to gym <br>
+                1: Add to waiting</td>
             </tr>
             <tr>
                 <td>admit/leaveGym</td>
                 <td>Add the user to record and delete the user from gym.</td>
-            </tr>
-            <tr>
-                <td>admit/addGym</td>
-                <td>Add the user from the waiting list.</td>
             </tr>
             <tr>
                 <td>admit/importRemove</td>
@@ -58,6 +57,25 @@
                 <td>admit/setMax</td>
                 <td>Set the maximum number user in gym.</td>
             </tr>
+            <tr>
+                <td>admit/record</td>
+                <td>Display all user record.</td>
+            </tr>
+            <tr>
+                <td>admit/record/id</td>
+                <td>id: gym user id<br>
+                    Display gym user record of id
+                </td>
+            </tr>
+            <tr>
+                <td>admit/cleanGym</td>
+                <td>Function of clean the gym</td>
+            </tr>
+            <tr>
+                <td>admit/gymStatus</td>
+                <td>Function of change status of the gym</td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 {% endblock %}

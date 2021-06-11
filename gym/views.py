@@ -19,12 +19,18 @@ from gym.functions.functions import handle_uploaded_file
 f = open("gym/static/Number.txt","r")
 maxNum = int(f.readline())
 f.close()
+admin=False
 
+loginTime = 3
+
+#404 page handling
 def handle_not_found(request, exception):
 	return render(request,'404.html')
 
 def index(request):
-	return render(request, 'gym/index.html')
+	global loginTime 
+	loginTime = 3
+	return render(request, 'gym/index.html',{'admin':admin})
 
 #export the csv of the GymUser
 def exportGymUser(request):
@@ -62,21 +68,23 @@ def importRemove(request):
 def viewCurrentUsers(request):
 
 	global admin
+	room = RoomStatus.objects.get(roomId=1)
 	if request.user.is_authenticated:
 		admin=True
+		if room.roomStatus=="False":
+			clean()
 	else:
 		admin=False
 	users = GymNow.objects.all().order_by('entryTime')
 	waitUsers = GymWaiting.objects.all().order_by('waitTime')
-	room = RoomStatus.objects.get(roomId=1)
-	if room.roomStatus=="False":
-		clear()
+	
 	return render(request, 'gym/ViewCurrentUsers.html',
 							{'users':users, 
 							'waitUsers':waitUsers,
 							'admin':admin,
 							'max':maxNum,
-							'status':room.roomStatus
+							'status':room.roomStatus,
+							'action':room.roomAction
 							})
 
 @login_required
@@ -108,25 +116,28 @@ def SetMaxUsers(request):
 		f.write(str(maxNum))
 		f.close()
 
-	
 	return render(request, 'gym/setMax.html',
 							{'admin':admin,
 							'maxNum':maxNum
 							})
 
 def userLogin(request):
+	global loginTime
+	if loginTime<0:
+		return redirect('/gym')
 	if request.method=="POST":
 		username = request.POST['username']
 		password = request.POST['password']
 		user = auth.authenticate(request, username=username, password=password)
 		if user is not None:
-
 			login(request, user)
 			return redirect('/gym/admit/admitGym')
 		else:
-			return redirect('/gym')
+			loginTime -= 1
+			print(loginTime)
+			return render(request, 'gym/login.html',
+							{'Msg':'Username or Password is wrong'})
 	else:
-
 		return render(request, 'gym/login.html')
 
 def easyLogin(request):
@@ -134,16 +145,17 @@ def easyLogin(request):
 	password = request.POST['password']
 	user = authenticate(request, username=username, password=password)
 	if user is not None:
-		global admin
-		admin = True
-
+		global admin 
+		admin = True #get the admin attribute after success login
 		login(request, user)
-		return redirect('/gym/admit/admitGym')
+		return redirect('/gym/')
 	else:
 		return redirect('/gym')
 
 def Logout(request):
 	auth.logout(request)
+	global admin
+	admin=False
 	return redirect('/gym')
 
 @login_required
@@ -163,6 +175,7 @@ def LeaveGym(request):
 		messages.success(request,"Action unsuccessful")
 	return redirect('/gym/admit/admitGym')
 
+#upload csv to admit user
 @login_required
 def upload(request):
 	form = UploadFileForm()
@@ -197,11 +210,11 @@ def upload(request):
 			form = UploadFileForm()
 	return render(request, 'gym/upload.html',{'form':form, 'admin':admin})
 
-
+# record page
 @login_required
 def viewRecord(request,id=None):
 	users = Record.objects.all().order_by('entryTime')
-	if id != None:
+	if id != None: # has a designated user
 		users = Record.objects.filter(userId=id)
 
 	return render(request, 'gym/record.html',
@@ -210,7 +223,9 @@ def viewRecord(request,id=None):
 							'id':id
 							})
 
-def clear():
+#clean the gym table function
+#gym user will record but waiting will not.
+def clean():
 	users = GymNow.objects.all()
 	for x in users:
 		new_user = Record.objects.create(userId=x.userId, entryTime=x.entryTime)
@@ -219,20 +234,36 @@ def clear():
 	users = GymWaiting.objects.all()
 	for x in users:
 		GymWaiting.objects.filter(userId=x.userId).delete()
-	
-def clearGym(request):
-	clear()
+
+#clean button of gym room
+@login_required	
+def cleanGym(request):
+	clean()
 	return redirect('/gym/admit/admitGym')
 
+@login_required
 def GymStatus(request):
-	room = RoomStatus.objects.get(roomId=1)
-	if room.roomStatus=="False":
-		room.roomStatus=True
-	else:
-		room.roomStatus=False
-	room.save()
-	return redirect('/gym/admit/admitGym')
+	if request.method == 'POST':
+		room = RoomStatus.objects.get(roomId=1)
+		status = request.POST['status']
+		time = request.POST['time']
+		if status=="Cleaning" or status=="Teaching": #clean and teach case
+			if time=="":
+				return render(request, 'gym/status.html',{'Msg':'*Please select the time'})
+			room.roomStatus=False
+			room.roomAction=status+" End time:"+time
+		elif status=="Close": # close case
+			room.roomStatus=False
+			room.roomAction=status
+		else: # open case
+			room.roomStatus=True
+			room.roomAction=status
+		room.save()
+		#return HttpResponse(status)
+		return redirect('/gym/admit/admitGym')
+	return render(request, 'gym/status.html',{'admin':admin})
 
+#for add gym user and add to waiting list
 @login_required
 def addPage(request, type=0):
 	users = GymUser.objects.all().order_by('id')
@@ -241,26 +272,25 @@ def addPage(request, type=0):
 		try:
 			if not GymNow.objects.filter(userId = da[0]).exists():
 				user = GymUser.objects.get(pk=da[0])
-				
-				if type==1:
+				if type==1: # add to waiting list
 					new_user = GymWaiting.objects.create(userId=user)
-				else:
+				else: # add gym user
 					new_user = GymNow.objects.create(userId=user)
 				new_user.save()
 				return redirect('/gym/admit/admitGym')
-			else:
+			else: #if user is existing
 				return render(request, 'gym/addForm.html',
 								{'users' : users,
 								'msg':'The user is exist',
 								'admin':admin
 								})
-		except:
+		except: # the user is not admitted
 			return render(request, 'gym/addForm.html',
 								{'users' : users,
 								'msg':'The user is not admitted',
 								'admin':admin
 								})
-	else:
+	else: # normal load on page
 		return render(request, 'gym/addForm.html',
 							{'users' : users,
 							'msg':'',

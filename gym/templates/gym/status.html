@@ -1,0 +1,60 @@
+{% extends "header.html" %}
+
+{% block title %}Status of Gym{% endblock %}
+{% load static %}
+{% block cssfile %}
+<link href="{% static '/css/test.css' %}?{% now 'U' %}" rel="stylesheet">
+{% endblock %}
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+$(function(){
+	$("#status").on("change", function(){
+        var $target = $("#time").val(""),
+            status = $(this).val();
+        
+        $target
+            .toggleClass("hidden", status === "")
+            .find("option:gt(0)").addClass("hidden")
+        	.siblings().filter("[data-type="+status+"]").removeClass("hidden"); 
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<h1>Set the status of Gym Room</h1>
+<form method="POST" onsubmit ="return confirm('Are you confirm change the status?')">
+	<div class="form-group">
+		{% csrf_token %}
+		<label>Enter the status of Gym Room:</label>
+		<select id="status" name="status">
+	        <option value="Open">Open</option>
+	        <option value="Teaching">Teaching</option>
+	        <option value="Cleaning">Cleaning</option>
+	        <option value="Close">Close</option>
+		</select> 
+		<br><br>
+		<label>Enter the end time of status:</label>
+		<select id="time" name="time" class="hidden">
+		        <option value="">Select the time</option>
+		        <option value="13:00" data-type="Cleaning">13:00</option>
+		        <option value="17:00" data-type="Cleaning">17:00</option>
+		        <option value="11:00" data-type="Teaching">11:00</option>
+		        <option value="13:00" data-type="Teaching">13:00</option>
+		        <option value="15:00" data-type="Teaching">15:00</option>
+		        <option value="17:00" data-type="Teaching">17:00</option>
+		        <option value="Open" data-type="Open">Open</option>
+		        <option value="Close" data-type="Close">Close</option>
+		</select>
+	</div>
+	<br>
+	<button type="Submit" class="btn btn-primary">Submit</button>
+</form>
+{% if Msg %}
+<p id="RedMsg">{{Msg}}</p>
+{% endif %}
+
+
+{% endblock %}

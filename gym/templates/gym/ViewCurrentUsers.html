@@ -12,28 +12,29 @@
 <div class="container ">
 	<div class="row">
 		<div class="col-sm">
-			<h1>Gym room {%if users|length >= max %} <span id="RedMsg">Full</span>{% endif %}{% if not status|checkOpen %}<span id="RedMsg"> Close</span>{% endif %}</h1>
+			<h1>Gym room {%if users|length >= max %} <span id="RedMsg">Full</span>{% endif %}</h1>
+			{% if not status|checkOpen %}<h2 id="RedMsg">{{action}}</h2>{% endif %}
 		</div>
-		<div class="col-sm-3"  style="text-align:right;  margin: auto;">
+		<div class="col-sm-2"  style="text-align:right;  margin: auto;">
 			{% if admin and users|length >= max %}
 			<a href="/gym/admit/addUser/1">
-				<button type="button" class="btn btn-primary">add to waiting</button>
+				<button type="button" class="btn btn-primary">Add to waiting</button>
 			</a>
 			{% elif admin %}
 			<a href="/gym/admit/addUser/0" {% if waitUsers or not status|checkOpen %} class="disabled"{% endif %}>
-				<button type="button" class="btn btn-primary">add to gym</button>
+				<button type="button" class="btn btn-primary">Add to gym</button>
 			</a>
 			{% endif %}
 		</div>
 		{% if admin %}
-		<div class="col-sm-1"  style="text-align:right;  margin: auto;">
-			<a href="/gym/admit/clearGym">
-				<button type="button" class="btn btn-primary">clear</button>
+		<div class="col-sm-2"  style="text-align:center;  margin: auto;">
+			<a href="/gym/admit/cleanGym">
+				<button type="button" class="btn btn-primary">Clean Gym</button>
 			</a>
 		</div>
-		<div class="col-sm-1"  style="text-align:right;  margin: auto;">
+		<div class="col-sm-1"  style="text-align:centers;  margin: auto;">
 			<a href="/gym/admit/GymStatus">
-				<button type="button" class="btn btn-primary" onClick="confirm('{% if status|checkOpen %}Are you close?{% else %}Are you open?{% endif %}')">Status</button>
+				<button type="button" class="btn btn-primary" >Status</button>
 			</a>
 		</div>
 		{% endif %}
@@ -130,7 +131,9 @@
 			{% endfor %}
 		</table>
 	{% endif %}
-
+	{% if action != "Open" %}
+	
+	{% endif %}
 	{% if messages %}
     <script>
         {% for msg in messages %}

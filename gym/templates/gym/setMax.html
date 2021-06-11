@@ -1,16 +1,19 @@
 {% extends "header.html" %}
 
 {% block title %}Set the maximum number{% endblock %}
-
+{% load static %}
+{% block cssfile %}
+<link href="{% static '/css/test.css' %}?{% now 'U' %}" rel="stylesheet">
+{% endblock %}
 {% block content %}
-<h1>Now the Maximum number is {{maxNum}}</h1>
+<h1>Now the Maximum number is <span id="RedMsg">{{maxNum}}</span></h1>
 
 <h1>Set the Maximum number of Gym Room</h1>
 <form method="get">
 	<div class="form-group">
 		<label>Enter the maximum number of Gym Room:</label>
 		<input type="number" name="maxNo">
-	</div>
+	</div><br>
 	<button type="Submit" class="btn btn-primary">Submit</button>
 
 </form>

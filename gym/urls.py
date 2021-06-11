@@ -10,7 +10,6 @@ urlpatterns = [
     path('gymroom', views.viewCurrentUsers, name='viewCurrentUsers'),
     #Path: /gym/login
     path('login', views.userLogin, name='userLogin'),
-
     #Path: /gym/logout
     path('logout', views.Logout, name='Logout'),
     #Path: /gym/admit/lsit
@@ -29,16 +28,17 @@ urlpatterns = [
     path('admit/importRemove', views.importRemove, name='importRemove'),
     #Path: /gym/admit/setMax
     path('admit/setMax', views.SetMaxUsers, name='SetMaxUsers'),
-
+    #Path: /gym/admit/record
     path('admit/record', views.viewRecord, name='viewRecord'),
+    #Path: /gym/admit/record/12133174
     path('admit/record/<int:id>/', views.viewRecord, name='viewRecord'),
-
-    path('admit/clearGym', views.clearGym, name='clearGym'),
-
+    #Path: /gym/admit/cleanGym
+    path('admit/cleanGym', views.cleanGym, name='cleanGym'),
+    #Path: /gym/admit/GymStatus
     path('admit/GymStatus', views.GymStatus, name='GymStatus'),
-
+    #Path: /gym/admit/addUser/0
     path('admit/addUser/<int:type>', views.addPage, name='addPage'),
 
 ]
 
-handler404="gym.views.handle_not_found"
+handler404="gym.views.handle_not_found" # for 404 page but the debug need to change to False
